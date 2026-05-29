@@ -292,9 +292,7 @@ function Row({ label, val, note, idx, dimmed, isZero }) {
       </div>
     </div>
   );
-}
-
-const PRODUCT_NAME_HINTS = [
+}const PRODUCT_NAME_HINTS = [
   { match:["turmeric"], hs:"0910.30", category:"food_spices", label:"Turmeric (spices)", short:"Turmeric" },
   { match:["chilli","chili","chile","cayenne","red pepper"], hs:"0904.22", category:"food_spices", label:"Chilli powder (spices)", short:"Chilli powder" },
   { match:["cumin","jeera"], hs:"0909.31", category:"food_spices", label:"Cumin seeds (spices) — 0909.31 (whole) or 0909.32 (crushed)", short:"Cumin" },
@@ -1473,10 +1471,9 @@ export default function App() {
         </div>
 
       </div>
-    </div>
 
-    {/* ── FOOTER ── */}
-    <div style={{ background:"#0a0806", borderTop:"1px solid rgba(200,169,110,0.1)", marginTop:0, padding:"0 0 40px" }}>
+      {/* ── FOOTER ── */}
+      <div style={{ background:"#0a0806", borderTop:"1px solid rgba(200,169,110,0.1)", marginTop:0, padding:"0 0 40px" }}>
       <div style={{ maxWidth:740, margin:"0 auto", padding:"0 16px" }}>
 
         {/* Footer nav row */}
@@ -1553,5 +1550,6 @@ export default function App() {
 
       </div>
     </div>
+  </div>
   );
 }
