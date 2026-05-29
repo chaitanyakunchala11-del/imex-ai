@@ -411,7 +411,7 @@ export default function App() {
     try { return JSON.parse(localStorage.getItem("imexSaved") || "[]"); } catch(e) { return []; }
   });
   const [isBrokerFormOpen, setIsBrokerFormOpen] = useState(false);
-  const [brokerFields, setBrokerFields] = useState({ name:"", email:"", phone:"", message:"" });
+  const [brokerFields, setBrokerFields] = useState({ name:"", email:"", phone:"", business:"", message:"", timeframe:"", consent:false });
   const [brokerSent, setBrokerSent] = useState(false);
 
   const set = (k, v) => setForm(f => ({...f, [k]:v}));
@@ -1743,105 +1743,247 @@ export default function App() {
 
             {/* Broker Quote Modal */}
             {isBrokerFormOpen && (
-              <div style={{ position:"fixed", inset:0, background:"rgba(6,4,2,0.88)", zIndex:1000, display:"flex", alignItems:"flex-start", justifyContent:"center", padding:"12px 10px", overflowY:"auto", WebkitOverflowScrolling:"touch" }} onClick={e=>{if(e.target===e.currentTarget)closeBrokerForm();}}>
-                <div style={{ width:"100%", maxWidth:540, background:"#141210", border:"1px solid rgba(200,169,110,0.22)", borderRadius:5, padding:"22px 16px", position:"relative", maxHeight:"92vh", overflowY:"auto", WebkitOverflowScrolling:"touch" }}>
-                  {/* Close */}
-                  <button onClick={closeBrokerForm} style={{ position:"absolute", top:14, right:16, background:"transparent", border:"none", color:"#5a5040", fontSize:20, cursor:"pointer", fontFamily:"monospace", lineHeight:1 }}>✕</button>
+              <div style={{ position:"fixed", inset:0, background:"rgba(4,3,2,0.92)", zIndex:1000, display:"flex", alignItems:"flex-start", justifyContent:"center", padding:"16px 12px", overflowY:"auto", WebkitOverflowScrolling:"touch" }}
+                onClick={e=>{if(e.target===e.currentTarget)closeBrokerForm();}}>
+                <div style={{ width:"100%", maxWidth:580, background:"linear-gradient(155deg,#141109 0%,#0f0e0b 100%)", border:"1px solid rgba(200,169,110,0.22)", borderRadius:16, padding:"28px 24px", position:"relative", maxHeight:"94vh", overflowY:"auto", WebkitOverflowScrolling:"touch", boxShadow:"0 24px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(200,169,110,0.08)" }}>
 
-                  <div style={{ fontSize:9, color:"#c8a96e", letterSpacing:"0.3em", textTransform:"uppercase", marginBottom:6 }}>◆ IMEX AI</div>
-                  <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:26, color:"#f0e8d8", fontWeight:400, marginBottom:4 }}>Request Broker Quote</div>
-                  <div style={{ fontSize:11, color:"#6a6050", lineHeight:1.7, marginBottom:18 }}>A licensed customs broker will review your details and provide an official quote. Fields marked * are required.</div>
+                  {/* Close */}
+                  <button onClick={closeBrokerForm} style={{ position:"absolute", top:18, right:20, background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:6, color:"#6a5a40", fontSize:14, cursor:"pointer", lineHeight:1, width:28, height:28, display:"flex", alignItems:"center", justifyContent:"center" }}>✕</button>
+
+                  {/* Header */}
+                  <div style={{ marginBottom:22 }}>
+                    <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:12 }}>
+                      <span style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", width:22, height:22, borderRadius:6, background:"rgba(96,200,144,0.14)", border:"1px solid rgba(96,200,144,0.28)", fontSize:10, color:"#60c890" }}>✦</span>
+                      <span style={{ fontSize:9, color:"#60c890", letterSpacing:"0.28em", textTransform:"uppercase" }}>Imex AI — Lead Generation</span>
+                    </div>
+                    <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:28, color:"#f0e8d8", fontWeight:400, lineHeight:1.1, marginBottom:8 }}>Request Broker Quote</div>
+                    <div style={{ fontSize:11, color:"#6a5a38", lineHeight:1.7 }}>Fill in your details and we will connect you with a licensed customs and freight partner. Fields marked <span style={{ color:"#e07060" }}>*</span> are required.</div>
+                  </div>
 
                   {brokerSent ? (
-                    <div style={{ textAlign:"center", padding:"28px 0" }}>
-                      <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:28, color:"#60c890", marginBottom:10 }}>✓ Request Ready</div>
-                      <div style={{ fontSize:12, color:"#507860", lineHeight:1.8 }}>Your email client should have opened with the pre-filled quote request.<br/>Reference: <span style={{ color:"#c8a96e" }}>{r.refNum}</span></div>
-                      <button onClick={closeBrokerForm} style={{ marginTop:18, background:"linear-gradient(135deg,#60c890,#3ea870)", border:"none", borderRadius:3, padding:"9px 22px", color:"#0a140e", fontFamily:"'DM Mono',monospace", fontSize:12, fontWeight:600, cursor:"pointer" }}>Done</button>
+                    /* ── SUCCESS STATE ── */
+                    <div style={{ textAlign:"center", padding:"32px 0 16px" }}>
+                      <div style={{ width:56, height:56, borderRadius:16, background:"rgba(96,200,144,0.12)", border:"1px solid rgba(96,200,144,0.3)", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 16px", fontSize:24, color:"#60c890" }}>✓</div>
+                      <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:26, color:"#60c890", marginBottom:10 }}>Quote Request Ready</div>
+                      <div style={{ fontSize:12, color:"#507860", lineHeight:1.8, marginBottom:20 }}>
+                        Your email app should open with the pre-filled lead details.<br/>
+                        Reference: <span style={{ color:"#c8a96e", fontFamily:"'DM Mono',monospace" }}>{r.refNum}</span>
+                      </div>
+                      <div style={{ display:"flex", gap:10, justifyContent:"center", flexWrap:"wrap" }}>
+                        <button onClick={closeBrokerForm} style={{ background:"linear-gradient(135deg,#60c890,#3ea870)", border:"none", borderRadius:8, padding:"11px 24px", color:"#0a140e", fontFamily:"'DM Mono',monospace", fontSize:12, fontWeight:600, cursor:"pointer", letterSpacing:"0.06em" }}>Done</button>
+                      </div>
                     </div>
+
                   ) : (
                     <div>
-                      {/* Contact */}
-                      <div className="imex-broker-contact">
-                        {[["Name *","name","Your full name","text"],["Email *","email","you@example.com","email"]].map(([lbl,key,ph,type])=>(
-                          <div key={key}><label style={{ fontSize:10, color:"#7a7060", letterSpacing:"0.12em", textTransform:"uppercase", display:"block", marginBottom:4 }}>{lbl}</label>
-                            <input type={type} value={brokerFields[key]} onChange={e=>setBF(key,e.target.value)} placeholder={ph} style={{ width:"100%", background:"#0e0c0a", border:"1px solid rgba(200,169,110,0.18)", borderRadius:3, padding:"8px 10px", color:"#e8e0d0", fontFamily:"'DM Mono',monospace", fontSize:11, outline:"none" }} />
+                      {/* ── CONTACT DETAILS ── */}
+                      <div style={{ fontSize:9, color:"#8a7040", letterSpacing:"0.24em", textTransform:"uppercase", marginBottom:12, display:"flex", alignItems:"center", gap:8 }}>
+                        <span style={{ width:12, height:1, background:"rgba(200,169,110,0.4)", display:"inline-block" }}/>
+                        Your Contact Details
+                      </div>
+
+                      <div className="imex-g2" style={{ marginBottom:12, gap:12 }}>
+                        {[["Full Name","name","e.g. Priya Sharma","text"],["Email Address","email","you@example.com","email"]].map(([lbl,key,ph,type])=>(
+                          <div key={key}>
+                            <label style={{ fontSize:10, color:"#8a7a5e", letterSpacing:"0.14em", textTransform:"uppercase", display:"block", marginBottom:6 }}>{lbl} <span style={{ color:"#e07060" }}>*</span></label>
+                            <input type={type} value={brokerFields[key]} onChange={e=>setBF(key,e.target.value)} placeholder={ph}
+                              style={{ width:"100%", background:"#070604", border:"1px solid rgba(200,169,110,0.18)", borderRadius:8, padding:"11px 13px", color:"#ede0c0", fontFamily:"'DM Mono',monospace", fontSize:12, outline:"none", transition:"border-color 0.15s" }}
+                              onFocus={e=>{e.target.style.borderColor="rgba(200,169,110,0.55)";e.target.style.boxShadow="0 0 0 3px rgba(200,169,110,0.08)";}}
+                              onBlur={e=>{e.target.style.borderColor="rgba(200,169,110,0.18)";e.target.style.boxShadow="none";}}
+                            />
                           </div>
                         ))}
                       </div>
-                      <div style={{ marginBottom:10 }}>
-                        <label style={{ fontSize:10, color:"#7a7060", letterSpacing:"0.12em", textTransform:"uppercase", display:"block", marginBottom:4 }}>Phone</label>
-                        <input type="tel" value={brokerFields.phone} onChange={e=>setBF("phone",e.target.value)} placeholder="+61 4xx xxx xxx" style={{ width:"100%", background:"#0e0c0a", border:"1px solid rgba(200,169,110,0.18)", borderRadius:3, padding:"8px 10px", color:"#e8e0d0", fontFamily:"'DM Mono',monospace", fontSize:11, outline:"none" }} />
+
+                      <div className="imex-g2" style={{ marginBottom:16, gap:12 }}>
+                        <div>
+                          <label style={{ fontSize:10, color:"#8a7a5e", letterSpacing:"0.14em", textTransform:"uppercase", display:"block", marginBottom:6 }}>Phone <span style={{ color:"#e07060" }}>*</span></label>
+                          <input type="tel" value={brokerFields.phone} onChange={e=>setBF("phone",e.target.value)} placeholder="+61 4xx xxx xxx"
+                            style={{ width:"100%", background:"#070604", border:"1px solid rgba(200,169,110,0.18)", borderRadius:8, padding:"11px 13px", color:"#ede0c0", fontFamily:"'DM Mono',monospace", fontSize:12, outline:"none" }}
+                            onFocus={e=>{e.target.style.borderColor="rgba(200,169,110,0.55)";e.target.style.boxShadow="0 0 0 3px rgba(200,169,110,0.08)";}}
+                            onBlur={e=>{e.target.style.borderColor="rgba(200,169,110,0.18)";e.target.style.boxShadow="none";}}
+                          />
+                        </div>
+                        <div>
+                          <label style={{ fontSize:10, color:"#8a7a5e", letterSpacing:"0.14em", textTransform:"uppercase", display:"block", marginBottom:6 }}>Business / Company</label>
+                          <input type="text" value={brokerFields.business} onChange={e=>setBF("business",e.target.value)} placeholder="e.g. Sunrise Foods Pty Ltd"
+                            style={{ width:"100%", background:"#070604", border:"1px solid rgba(200,169,110,0.18)", borderRadius:8, padding:"11px 13px", color:"#ede0c0", fontFamily:"'DM Mono',monospace", fontSize:12, outline:"none" }}
+                            onFocus={e=>{e.target.style.borderColor="rgba(200,169,110,0.55)";e.target.style.boxShadow="0 0 0 3px rgba(200,169,110,0.08)";}}
+                            onBlur={e=>{e.target.style.borderColor="rgba(200,169,110,0.18)";e.target.style.boxShadow="none";}}
+                          />
+                        </div>
                       </div>
 
-                      {/* Pre-filled shipment info (read-only) */}
-                      <div style={{ background:"rgba(200,169,110,0.05)", border:"1px solid rgba(200,169,110,0.12)", borderRadius:3, padding:"12px 14px", marginBottom:14 }}>
-                        <div style={{ fontSize:9, color:"#c8a96e", letterSpacing:"0.18em", textTransform:"uppercase", marginBottom:8 }}>Shipment Details (from estimate)</div>
-                        <div className="imex-broker-prefill" style={{ gap:6 }}>
+                      {/* ── SHIPMENT SNAPSHOT (pre-filled, read-only) ── */}
+                      <div style={{ background:"rgba(200,169,110,0.04)", border:"1px solid rgba(200,169,110,0.12)", borderRadius:10, padding:"14px 16px", marginBottom:16 }}>
+                        <div style={{ fontSize:9, color:"#c8a96e", letterSpacing:"0.22em", textTransform:"uppercase", marginBottom:10, display:"flex", alignItems:"center", gap:8 }}>
+                          <span style={{ width:10, height:1, background:"rgba(200,169,110,0.5)", display:"inline-block" }}/>
+                          Shipment Details — from your estimate
+                        </div>
+                        <div className="imex-g2" style={{ gap:8 }}>
                           {[
-                            ["Origin", COUNTRIES[r.origin]||r.origin],
-                            ["Destination", COUNTRIES[r.dest]||r.dest],
-                            ["Product", form.productName||r.category],
-                            ["Category", PRODUCT_CATEGORIES.find(c=>c.value===r.category)?.label||r.category],
-                            ["HS Code", r.hsInfo?.code||"Unknown"],
-                            ["Quantity", r.qtyN+" units"],
-                            ["Weight", (Math.max(1,parseFloat(form.weight)||r.qtyN*0.3).toFixed(1))+" kg"],
-                            ["Shipping", SHIP_MODES.find(m=>m.value===r.shipMode)?.label||r.shipMode],
+                            ["Product", form.productName || (PRODUCT_CATEGORIES.find(c=>c.value===r.category)?.label||r.category)],
+                            ["Route", (COUNTRIES[r.origin]||r.origin)+" → "+(COUNTRIES[r.dest]||r.dest)],
+                            ["HS Code", r.hsInfo?.code||"Unknown — classification required"],
+                            ["Quantity", r.qtyN.toLocaleString()+" units"],
+                            ["Total Weight", (Math.max(1,parseFloat(form.weight)||r.qtyN*0.3).toFixed(1))+" kg"],
+                            ["Shipping Mode", SHIP_MODES.find(m=>m.value===r.shipMode)?.label||r.shipMode],
                             ["Incoterm", r.incoterm],
-                            ["Ref", r.refNum],
+                            ["Total Landed Cost", (CURRENCIES[r.displayCurrency]?.symbol||"")+(fromUSD(r.totalLandedUSD,r.displayCurrency)).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})+" "+r.displayCurrency],
+                            ...(r.profit ? [
+                              ["Selling Price/Unit", (CURRENCIES[r.displayCurrency]?.symbol||"")+r.profit.sellingPriceDisplay.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})],
+                              ["Profit Margin", r.profit.margin.toFixed(1)+"%"],
+                            ] : []),
+                            ["Reference", r.refNum],
                           ].map(([lbl,val])=>(
-                            <div key={lbl}>
-                              <div style={{ fontSize:9, color:"#4a4438", textTransform:"uppercase", letterSpacing:"0.12em" }}>{lbl}</div>
-                              <div style={{ fontSize:11, color:"#c8b898", marginTop:1 }}>{val}</div>
+                            <div key={lbl} style={{ minWidth:0 }}>
+                              <div style={{ fontSize:9, color:"#4a3820", textTransform:"uppercase", letterSpacing:"0.12em", marginBottom:3 }}>{lbl}</div>
+                              <div style={{ fontSize:11, color:"#c8b898", lineHeight:1.4, wordBreak:"break-all" }}>{val}</div>
                             </div>
                           ))}
                         </div>
                       </div>
 
-                      {/* Message */}
-                      <div style={{ marginBottom:14 }}>
-                        <label style={{ fontSize:10, color:"#7a7060", letterSpacing:"0.12em", textTransform:"uppercase", display:"block", marginBottom:4 }}>Message / Special Requirements</label>
-                        <textarea value={brokerFields.message} onChange={e=>setBF("message",e.target.value)} placeholder="Any special handling, compliance notes, urgency, or questions for the broker..." rows={3} style={{ width:"100%", background:"#0e0c0a", border:"1px solid rgba(200,169,110,0.18)", borderRadius:3, padding:"8px 10px", color:"#e8e0d0", fontFamily:"'DM Mono',monospace", fontSize:11, outline:"none", resize:"vertical" }} />
+                      {/* ── SHIPPING TIMEFRAME ── */}
+                      <div style={{ marginBottom:12 }}>
+                        <label style={{ fontSize:10, color:"#8a7a5e", letterSpacing:"0.14em", textTransform:"uppercase", display:"block", marginBottom:8 }}>Shipping Timeframe</label>
+                        <div style={{ display:"flex", flexWrap:"wrap", gap:6 }}>
+                          {["ASAP","1–2 weeks","1 month","2–3 months","Just researching"].map(t=>(
+                            <button key={t} type="button" onClick={()=>setBF("timeframe",t)} style={{
+                              background: brokerFields.timeframe===t ? "rgba(200,169,110,0.15)" : "rgba(200,169,110,0.04)",
+                              border: brokerFields.timeframe===t ? "1px solid rgba(200,169,110,0.5)" : "1px solid rgba(200,169,110,0.14)",
+                              borderRadius:20, padding:"5px 13px",
+                              color: brokerFields.timeframe===t ? "#d4aa60" : "#6a5a38",
+                              fontFamily:"'DM Mono',monospace", fontSize:10, cursor:"pointer", letterSpacing:"0.06em", transition:"all 0.15s",
+                            }}>{t}</button>
+                          ))}
+                        </div>
                       </div>
 
-                      {/* Submit */}
-                      <button onClick={()=>{
-                        if (!brokerFields.name.trim()||!brokerFields.email.trim()) { alert("Please enter your name and email."); return; }
-                        const totalW = Math.max(1,parseFloat(form.weight)||r.qtyN*0.3);
-                        const sym = CURRENCIES[r.displayCurrency]?.symbol||"";
-                        const fmtV = (n)=>sym+(n||0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
-                        const body = encodeURIComponent(
-                          "IMEX AI — Broker Quote Request\n"+
-                          "Reference: "+r.refNum+"\n\n"+
-                          "CONTACT DETAILS\n"+
-                          "Name: "+brokerFields.name+"\n"+
-                          "Email: "+brokerFields.email+"\n"+
-                          "Phone: "+(brokerFields.phone||"Not provided")+"\n\n"+
-                          "SHIPMENT DETAILS\n"+
-                          "Origin: "+(COUNTRIES[r.origin]||r.origin)+"\n"+
-                          "Destination: "+(COUNTRIES[r.dest]||r.dest)+"\n"+
-                          "Product: "+(form.productName||r.category)+"\n"+
-                          "Category: "+(PRODUCT_CATEGORIES.find(c=>c.value===r.category)?.label||r.category)+"\n"+
-                          "HS Code: "+(r.hsInfo?.code||"Unknown — classification required")+"\n"+
-                          "Quantity: "+r.qtyN+" units\n"+
-                          "Total Weight: "+totalW.toFixed(1)+" kg\n"+
-                          "Shipping Mode: "+(SHIP_MODES.find(m=>m.value===r.shipMode)?.label||r.shipMode)+"\n"+
-                          "Incoterm: "+r.incoterm+"\n\n"+
-                          "ESTIMATE SUMMARY\n"+
-                          "Total Landed Cost: "+fmtV(fromUSD(r.totalLandedUSD,r.displayCurrency))+" "+r.displayCurrency+"\n"+
-                          "Landed Cost Per Unit: "+fmtV(fromUSD(r.perUnitUSD,r.displayCurrency))+" "+r.displayCurrency+"\n\n"+
-                          "MESSAGE / SPECIAL REQUIREMENTS\n"+
-                          (brokerFields.message||"None provided")+"\n\n"+
-                          "---\n"+
-                          "Generated by IMEX AI Import & Export Cost Calculator\n"+
-                          "Estimate only — not a customs ruling or freight quote.\n"+
-                          "Always confirm with a licensed customs broker before shipping."
-                        );
-                        window.location.href="mailto:?subject=Imex AI Broker Quote Request - "+r.refNum+"&body="+body;
-                        setBrokerSent(true);
-                      }} style={{ width:"100%", background:"linear-gradient(135deg,#60c890,#3ea870)", border:"none", borderRadius:3, padding:"12px", color:"#0a140e", fontFamily:"'DM Mono',monospace", fontSize:12, fontWeight:600, cursor:"pointer", letterSpacing:"0.06em" }}>
-                        ✦ Send Quote Request →
-                      </button>
-                      <div style={{ marginTop:8, fontSize:10, color:"#3a3430", textAlign:"center", lineHeight:1.55 }}>Opens your email client with a pre-filled request. Your details are not stored by IMEX AI.</div>
+                      {/* ── MESSAGE ── */}
+                      <div style={{ marginBottom:16 }}>
+                        <label style={{ fontSize:10, color:"#8a7a5e", letterSpacing:"0.14em", textTransform:"uppercase", display:"block", marginBottom:6 }}>Message / Special Requirements</label>
+                        <textarea value={brokerFields.message} onChange={e=>setBF("message",e.target.value)}
+                          placeholder="Any special handling, biosecurity questions, compliance notes, urgency, or notes for the broker..."
+                          rows={3}
+                          style={{ width:"100%", background:"#070604", border:"1px solid rgba(200,169,110,0.18)", borderRadius:8, padding:"11px 13px", color:"#ede0c0", fontFamily:"'DM Mono',monospace", fontSize:12, outline:"none", resize:"vertical", lineHeight:1.6 }}
+                          onFocus={e=>{e.target.style.borderColor="rgba(200,169,110,0.55)";e.target.style.boxShadow="0 0 0 3px rgba(200,169,110,0.08)";}}
+                          onBlur={e=>{e.target.style.borderColor="rgba(200,169,110,0.18)";e.target.style.boxShadow="none";}}
+                        />
+                      </div>
+
+                      {/* ── CONSENT ── */}
+                      <div
+                        onClick={()=>setBF("consent",!brokerFields.consent)}
+                        style={{ marginBottom:20, padding:"14px 16px", background: brokerFields.consent ? "rgba(200,169,110,0.08)" : "rgba(200,169,110,0.04)", border: brokerFields.consent ? "1px solid rgba(200,169,110,0.35)" : "1px solid rgba(200,169,110,0.15)", borderRadius:8, cursor:"pointer", transition:"all 0.15s" }}
+                      >
+                        <div style={{ display:"flex", gap:12, alignItems:"flex-start" }}>
+                          {/* Custom checkbox */}
+                          <div style={{
+                            flexShrink:0, marginTop:2,
+                            width:18, height:18, borderRadius:4,
+                            border: brokerFields.consent ? "2px solid #c8a96e" : "2px solid rgba(200,169,110,0.4)",
+                            background: brokerFields.consent ? "rgba(200,169,110,0.2)" : "transparent",
+                            display:"flex", alignItems:"center", justifyContent:"center",
+                            transition:"all 0.15s",
+                            boxShadow: brokerFields.consent ? "0 0 0 3px rgba(200,169,110,0.1)" : "none",
+                          }}>
+                            {brokerFields.consent && (
+                              <svg width="10" height="8" viewBox="0 0 10 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M1 4L3.5 6.5L9 1" stroke="#c8a96e" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            )}
+                          </div>
+                          {/* Hidden real checkbox for accessibility/form semantics */}
+                          <input type="checkbox" checked={brokerFields.consent} onChange={e=>setBF("consent",e.target.checked)}
+                            style={{ position:"absolute", opacity:0, width:0, height:0, pointerEvents:"none" }}
+                            tabIndex={-1}
+                          />
+                          <span style={{ fontSize:11, color: brokerFields.consent ? "#c8b898" : "#8a7a5e", lineHeight:1.75, userSelect:"none" }}>
+                            I understand this is an estimate only and I agree to be contacted by Imex AI or a licensed customs/freight partner about this shipment.
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* ── ACTION BUTTONS ── */}
+                      <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+                        {/* Primary: Open Email */}
+                        <button onClick={()=>{
+                          if (!brokerFields.name.trim()||!brokerFields.email.trim()||!brokerFields.phone.trim()) { alert("Please enter your Name, Email and Phone."); return; }
+                          if (!brokerFields.consent) { alert("Please check the consent box to continue."); return; }
+                          const sym = CURRENCIES[r.displayCurrency]?.symbol||"";
+                          const fmtV = (n)=>sym+(n||0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+                          const totalW = Math.max(1,parseFloat(form.weight)||r.qtyN*0.3);
+                          const body = encodeURIComponent(
+                            "IMEX AI — BROKER QUOTE LEAD\n"+
+                            "Reference: "+r.refNum+"\n"+
+                            "Generated: "+r.calcDate+"\n"+
+                            "=========================================\n\n"+
+                            "CONTACT DETAILS\n"+
+                            "Full Name: "+brokerFields.name+"\n"+
+                            "Email: "+brokerFields.email+"\n"+
+                            "Phone: "+brokerFields.phone+"\n"+
+                            "Business / Company: "+(brokerFields.business||"Not provided")+"\n"+
+                            "Shipping Timeframe: "+(brokerFields.timeframe||"Not specified")+"\n\n"+
+                            "SHIPMENT DETAILS\n"+
+                            "Product: "+(form.productName||(PRODUCT_CATEGORIES.find(c=>c.value===r.category)?.label||r.category))+"\n"+
+                            "Origin: "+(COUNTRIES[r.origin]||r.origin)+"\n"+
+                            "Destination: "+(COUNTRIES[r.dest]||r.dest)+"\n"+
+                            "HS Code: "+(r.hsInfo?.code||"Unknown — classification required")+"\n"+
+                            "Quantity: "+r.qtyN.toLocaleString()+" units\n"+
+                            "Total Weight: "+totalW.toFixed(1)+" kg\n"+
+                            "Shipping Mode: "+(SHIP_MODES.find(m=>m.value===r.shipMode)?.label||r.shipMode)+"\n"+
+                            "Incoterm: "+r.incoterm+"\n\n"+
+                            "ESTIMATE SUMMARY\n"+
+                            "Total Landed Cost: "+fmtV(fromUSD(r.totalLandedUSD,r.displayCurrency))+" "+r.displayCurrency+"\n"+
+                            "Landed Cost Per Unit: "+fmtV(fromUSD(r.perUnitUSD,r.displayCurrency))+" "+r.displayCurrency+"\n"+
+                            (r.profit ? "Selling Price/Unit: "+fmtV(r.profit.sellingPriceDisplay)+"\nGross Profit: "+fmtV(r.profit.grossProfit)+"\nProfit Margin: "+r.profit.margin.toFixed(1)+"%\n" : "")+
+                            "\nMESSAGE / SPECIAL REQUIREMENTS\n"+
+                            (brokerFields.message||"None provided")+"\n\n"+
+                            "CONSENT\nUser confirmed: I understand this is an estimate only and I agree to be contacted by Imex AI or a licensed customs/freight partner.\n\n"+
+                            "---\n"+
+                            "Generated by IMEX AI Import & Export Cost Calculator\n"+
+                            "Estimate only — not a customs ruling or freight quote."
+                          );
+                          window.location.href="mailto:contact@imexai.com.au?subject=Imex AI Broker Quote Lead - "+r.refNum+"&body="+body;
+                          setBrokerSent(true);
+                        }} style={{ width:"100%", background:"linear-gradient(135deg,#60c890,#3ea870)", border:"none", borderRadius:8, padding:"13px", color:"#030a06", fontFamily:"'DM Mono',monospace", fontSize:12, fontWeight:600, cursor:"pointer", letterSpacing:"0.07em", boxShadow:"0 2px 12px rgba(96,200,144,0.2)" }}>
+                          ✦ Open Email Request →
+                        </button>
+
+                        {/* Secondary: Copy */}
+                        <button onClick={()=>{
+                          const sym = CURRENCIES[r.displayCurrency]?.symbol||"";
+                          const fmtV = (n)=>sym+(n||0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+                          const totalW = Math.max(1,parseFloat(form.weight)||r.qtyN*0.3);
+                          const text =
+                            "IMEX AI — BROKER QUOTE LEAD\n"+
+                            "Reference: "+r.refNum+"\n\n"+
+                            "CONTACT\n"+
+                            "Name: "+brokerFields.name+"\nEmail: "+brokerFields.email+"\nPhone: "+brokerFields.phone+"\nBusiness: "+(brokerFields.business||"—")+"\nTimeframe: "+(brokerFields.timeframe||"Not specified")+"\n\n"+
+                            "SHIPMENT\n"+
+                            "Product: "+(form.productName||(PRODUCT_CATEGORIES.find(c=>c.value===r.category)?.label||r.category))+"\n"+
+                            "Route: "+(COUNTRIES[r.origin]||r.origin)+" → "+(COUNTRIES[r.dest]||r.dest)+"\n"+
+                            "HS Code: "+(r.hsInfo?.code||"Unknown")+"\n"+
+                            "Qty: "+r.qtyN+" units | Weight: "+totalW.toFixed(1)+" kg\n"+
+                            "Mode: "+(SHIP_MODES.find(m=>m.value===r.shipMode)?.label||r.shipMode)+" | Incoterm: "+r.incoterm+"\n\n"+
+                            "ESTIMATE\n"+
+                            "Total Landed: "+fmtV(fromUSD(r.totalLandedUSD,r.displayCurrency))+" "+r.displayCurrency+"\n"+
+                            "Per Unit: "+fmtV(fromUSD(r.perUnitUSD,r.displayCurrency))+" "+r.displayCurrency+"\n"+
+                            (r.profit?"Margin: "+r.profit.margin.toFixed(1)+"%\n":"")+
+                            "\nNotes: "+(brokerFields.message||"None");
+                          try {
+                            navigator.clipboard.writeText(text).then(()=>alert("Lead details copied to clipboard.")).catch(()=>alert("Copy not supported — please use Open Email instead."));
+                          } catch(e) { alert("Copy not supported — please use Open Email instead."); }
+                        }} style={{ width:"100%", background:"transparent", border:"1px solid rgba(200,169,110,0.25)", borderRadius:8, padding:"11px", color:"#c8a96e", fontFamily:"'DM Mono',monospace", fontSize:11, cursor:"pointer", letterSpacing:"0.06em" }}>
+                          ⎘ Copy Lead Details
+                        </button>
+
+                        <div style={{ fontSize:10, color:"#3a3020", textAlign:"center", lineHeight:1.6 }}>
+                          Email goes to contact@imexai.com.au · Your details are not stored by Imex AI.
+                        </div>
+                      </div>
+
                     </div>
                   )}
                 </div>
