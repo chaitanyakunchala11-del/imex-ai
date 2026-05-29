@@ -338,6 +338,8 @@ export default function App() {
   });
   const [result, setResult] = useState(null);
   const [animKey, setAnimKey] = useState(0);
+  const [openSection, setOpenSection] = useState(null); // "privacy" | "terms" | "contact" | null
+  const toggleSection = (key) => setOpenSection(s => s === key ? null : key);
   const [savedEstimates, setSavedEstimates] = useState(() => {
     try { return JSON.parse(localStorage.getItem("imexSaved") || "[]"); } catch(e) { return []; }
   });
@@ -1468,6 +1470,85 @@ export default function App() {
               ))}
             </div>
           )}
+        </div>
+
+      </div>
+    </div>
+
+    {/* ── FOOTER ── */}
+    <div style={{ background:"#0a0806", borderTop:"1px solid rgba(200,169,110,0.1)", marginTop:0, padding:"0 0 40px" }}>
+      <div style={{ maxWidth:740, margin:"0 auto", padding:"0 16px" }}>
+
+        {/* Footer nav row */}
+        <div style={{ display:"flex", flexWrap:"wrap", gap:0, borderBottom:"1px solid rgba(255,255,255,0.04)" }}>
+          {[
+            { key:"privacy", label:"Privacy Policy" },
+            { key:"terms",   label:"Terms & Disclaimer" },
+            { key:"contact", label:"Contact" },
+          ].map(({ key, label }) => (
+            <button key={key} onClick={() => toggleSection(key)} style={{ background:"transparent", border:"none", borderRight:"1px solid rgba(255,255,255,0.05)", padding:"14px 18px", color: openSection === key ? "#c8a96e" : "#5a5248", fontFamily:"'DM Mono',monospace", fontSize:11, cursor:"pointer", letterSpacing:"0.07em", transition:"color 0.15s" }}>
+              {openSection === key ? "▾" : "▸"} {label}
+            </button>
+          ))}
+        </div>
+
+        {/* Privacy Policy */}
+        {openSection === "privacy" && (
+          <div style={{ padding:"20px 4px 8px", animation:"fu 0.25s ease both" }}>
+            <div style={{ fontSize:10, color:"#c8a96e", letterSpacing:"0.22em", textTransform:"uppercase", marginBottom:12 }}>Privacy Policy</div>
+            {[
+              "Imex AI does not sell, share or transmit user data to any third party.",
+              "Saved estimates are stored locally in your browser using localStorage. They are not sent to any server.",
+              "Broker quote requests open your email application with a pre-filled message. No data is submitted to Imex AI.",
+              "No user account, backend database or tracking system is currently in use.",
+              "Calculations are performed entirely in your browser. No shipment details are transmitted.",
+              "This privacy policy applies to the current version of Imex AI. Future versions with backend features will have an updated policy.",
+            ].map((line, i) => (
+              <div key={i} style={{ fontSize:11, color:"#7a7060", lineHeight:1.75, marginBottom:4, paddingLeft:12, borderLeft:"2px solid rgba(200,169,110,0.2)" }}>· {line}</div>
+            ))}
+          </div>
+        )}
+
+        {/* Terms & Disclaimer */}
+        {openSection === "terms" && (
+          <div style={{ padding:"20px 4px 8px", animation:"fu 0.25s ease both" }}>
+            <div style={{ fontSize:10, color:"#c8a96e", letterSpacing:"0.22em", textTransform:"uppercase", marginBottom:12 }}>Terms & Disclaimer</div>
+            {[
+              "All calculations produced by Imex AI are estimates for planning purposes only. They are not binding or guaranteed.",
+              "Imex AI does not provide customs advice, freight quotes, legal advice, tax advice, financial advice or biosecurity advice.",
+              "Duty rates, GST, tariffs and taxes shown are indicative only. Actual charges depend on HS code classification, product type, country rules, incoterms and customs assessment.",
+              "Users must verify HS codes, import duties, GST, tariffs, biosecurity requirements, food standards, labelling rules and import conditions with official authorities or a licensed customs broker before shipping.",
+              "Imex AI does not support restricted, prohibited, dangerous, controlled or licence-required goods. Do not use this calculator for such products.",
+              "Imex AI is not liable for any loss, cost, penalty or damage arising from reliance on estimates produced by this calculator.",
+              "By using Imex AI, you agree that all results must be verified with qualified professionals before making any trading or import/export decisions.",
+            ].map((line, i) => (
+              <div key={i} style={{ fontSize:11, color:"#7a7060", lineHeight:1.75, marginBottom:4, paddingLeft:12, borderLeft:"2px solid rgba(200,169,110,0.2)" }}>· {line}</div>
+            ))}
+          </div>
+        )}
+
+        {/* Contact */}
+        {openSection === "contact" && (
+          <div style={{ padding:"20px 4px 8px", animation:"fu 0.25s ease both" }}>
+            <div style={{ fontSize:10, color:"#c8a96e", letterSpacing:"0.22em", textTransform:"uppercase", marginBottom:12 }}>Contact</div>
+            <div style={{ fontSize:11, color:"#7a7060", lineHeight:1.75, marginBottom:10 }}>
+              For enquiries, broker referrals, feedback or support, please email:
+            </div>
+            <a href="mailto:contact@imexai.com.au" style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:20, color:"#c8a96e", textDecoration:"none", letterSpacing:"0.01em" }}>
+              contact@imexai.com.au
+            </a>
+            <div style={{ marginTop:12, fontSize:10, color:"#4a4438", lineHeight:1.75 }}>
+              Imex AI is an Australian business focused on India–Australia trade.<br/>
+              Business name registration: ASIC (pending completion).<br/>
+              ABN application in progress.
+            </div>
+          </div>
+        )}
+
+        {/* Footer base */}
+        <div style={{ marginTop:20, paddingTop:14, borderTop:"1px solid rgba(255,255,255,0.04)", display:"flex", flexWrap:"wrap", justifyContent:"space-between", alignItems:"center", gap:8 }}>
+          <div style={{ fontSize:9, color:"#2a2820", letterSpacing:"0.15em" }}>◆ IMEX AI — Import & Export Cost Calculator</div>
+          <div style={{ fontSize:9, color:"#2a2820", letterSpacing:"0.08em" }}>Australia · contact@imexai.com.au</div>
         </div>
 
       </div>
