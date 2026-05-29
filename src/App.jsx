@@ -730,24 +730,88 @@ export default function App() {
   return (
     <div style={{ minHeight:"100vh", background:"#0e0c0a", fontFamily:"'DM Mono',monospace", color:"#e8e0d0", paddingBottom:80 }}>
 
-      {/* Header */}
-      <div style={{ borderBottom:"1px solid rgba(200,169,110,0.12)", padding:"22px 16px 18px", background:"linear-gradient(180deg,#161310 0%,#0e0c0a 100%)" }}>
-        <div style={{ maxWidth:740, margin:"0 auto" }}>
-          <div style={{ fontSize:10, letterSpacing:"0.35em", color:"#c8a96e", textTransform:"uppercase", marginBottom:7 }}>◆ IMEX AI</div>
-          <h1 style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:"clamp(22px,5vw,40px)", fontWeight:400, lineHeight:1.1, color:"#f0e8d8" }}>
-            Import & Export<br /><em style={{ color:"#c8a96e" }}>Cost Calculator</em>
-          </h1>
-          <p style={{ marginTop:9, fontSize:11, color:"#6a6258", lineHeight:1.7 }}>
-            Describe your shipment — duties, freight, taxes and landed cost estimated instantly.
-          </p>
-          <div className="imex-routes" style={{ marginTop:12 }}>
-            {PRIORITY_ROUTES.map(({from,to}) => (
-              <button key={from+to} onClick={()=>{set("origin",from);set("dest",to);}}
-                style={{ background:form.origin===from&&form.dest===to?"rgba(200,169,110,0.14)":"transparent", border:"1px solid rgba(200,169,110,0.18)", borderRadius:2, padding:"3px 9px", color:"#9a8a70", fontFamily:"'DM Mono',monospace", fontSize:10, cursor:"pointer" }}>
-                {COUNTRIES[from]} → {COUNTRIES[to]}
-              </button>
-            ))}
+      {/* Hero Header */}
+      <div style={{
+        background:"linear-gradient(160deg,#110e08 0%,#0a0805 60%,#080705 100%)",
+        borderBottom:"1px solid rgba(200,169,110,0.1)",
+        padding:"52px 20px 44px",
+        position:"relative",
+        overflow:"hidden",
+      }}>
+        {/* Subtle background accent */}
+        <div style={{
+          position:"absolute", top:0, right:0,
+          width:400, height:400,
+          background:"radial-gradient(ellipse at 80% 20%, rgba(200,169,110,0.04) 0%, transparent 65%)",
+          pointerEvents:"none",
+        }}/>
+        <div style={{ maxWidth:740, margin:"0 auto", position:"relative" }}>
+
+          {/* Brand mark */}
+          <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:24 }}>
+            <div style={{
+              width:32, height:32, borderRadius:7,
+              background:"linear-gradient(135deg,#c8a96e 0%,#7a5030 100%)",
+              display:"flex", alignItems:"center", justifyContent:"center",
+              fontSize:14, color:"#050300", boxShadow:"0 2px 12px rgba(200,169,110,0.25)",
+            }}>◆</div>
+            <div>
+              <div style={{ fontSize:11, color:"#c8a96e", letterSpacing:"0.35em", textTransform:"uppercase", lineHeight:1 }}>IMEX AI</div>
+              <div style={{ fontSize:9, color:"#5a5040", letterSpacing:"0.18em", textTransform:"uppercase", marginTop:2 }}>Import & Export Intelligence</div>
+            </div>
           </div>
+
+          {/* Headline */}
+          <h1 style={{
+            fontFamily:"'Cormorant Garamond',serif",
+            fontSize:"clamp(30px,5.5vw,52px)",
+            fontWeight:400,
+            lineHeight:1.06,
+            color:"#f0e8d8",
+            marginBottom:16,
+            letterSpacing:"-0.015em",
+          }}>
+            Import & Export<br/>
+            <em style={{ color:"#c8a96e", fontStyle:"italic" }}>Cost Intelligence</em>
+          </h1>
+
+          {/* Subheadline */}
+          <p style={{
+            fontSize:14, color:"#8a7e6a", lineHeight:1.75,
+            maxWidth:500, marginBottom:28,
+            fontFamily:"'DM Mono',monospace", letterSpacing:"0.01em",
+          }}>
+            Estimate landed cost, profit margin, duties, freight and compliance risk before you ship.
+          </p>
+
+          {/* Divider line */}
+          <div style={{ width:40, height:1, background:"linear-gradient(90deg,#c8a96e,transparent)", marginBottom:22 }}/>
+
+          {/* Priority route chips */}
+          <div style={{ display:"flex", flexWrap:"wrap", gap:8, alignItems:"center" }}>
+            <span style={{ fontSize:9, color:"#4a4438", letterSpacing:"0.18em", textTransform:"uppercase", marginRight:4 }}>Quick routes</span>
+            {PRIORITY_ROUTES.map(({from,to}) => {
+              const active = form.origin===from && form.dest===to;
+              return (
+                <button key={from+to} onClick={()=>{set("origin",from);set("dest",to);}} style={{
+                  background: active ? "rgba(200,169,110,0.14)" : "rgba(255,255,255,0.03)",
+                  border: active ? "1px solid rgba(200,169,110,0.45)" : "1px solid rgba(200,169,110,0.14)",
+                  borderRadius:24,
+                  padding:"6px 14px",
+                  color: active ? "#c8a96e" : "#6a6050",
+                  fontFamily:"'DM Mono',monospace",
+                  fontSize:10,
+                  cursor:"pointer",
+                  letterSpacing:"0.06em",
+                  transition:"all 0.15s",
+                  boxShadow: active ? "0 0 0 1px rgba(200,169,110,0.12)" : "none",
+                }}>
+                  {COUNTRIES[from]} → {COUNTRIES[to]}
+                </button>
+              );
+            })}
+          </div>
+
         </div>
       </div>
 
@@ -839,7 +903,28 @@ export default function App() {
           </div>
         </div>
 
-        <button onClick={calculate} style={{ width:"100%", background:"linear-gradient(135deg,#c8a96e,#a8893e)", border:"none", borderRadius:3, padding:"13px", color:"#0e0c0a", fontFamily:"'DM Mono',monospace", fontSize:13, fontWeight:500, cursor:"pointer", letterSpacing:"0.08em", marginBottom:22 }}>
+        <button onClick={calculate} style={{
+          width:"100%",
+          background:"linear-gradient(135deg,#d4b472 0%,#c8a030 40%,#a07828 100%)",
+          border:"none",
+          borderRadius:8,
+          padding:"16px 24px",
+          color:"#080500",
+          fontFamily:"'DM Mono',monospace",
+          fontSize:13,
+          fontWeight:600,
+          cursor:"pointer",
+          letterSpacing:"0.1em",
+          marginBottom:24,
+          boxShadow:"0 2px 16px rgba(200,160,48,0.22), 0 1px 0 rgba(255,255,255,0.06) inset",
+          transition:"opacity 0.15s, box-shadow 0.15s",
+          textTransform:"uppercase",
+          position:"relative",
+          overflow:"hidden",
+        }}
+          onMouseEnter={e=>{e.currentTarget.style.opacity="0.9";e.currentTarget.style.boxShadow="0 4px 24px rgba(200,160,48,0.32), 0 1px 0 rgba(255,255,255,0.06) inset";}}
+          onMouseLeave={e=>{e.currentTarget.style.opacity="1";e.currentTarget.style.boxShadow="0 2px 16px rgba(200,160,48,0.22), 0 1px 0 rgba(255,255,255,0.06) inset";}}
+        >
           Calculate Landed Cost →
         </button>
 
