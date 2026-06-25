@@ -31,7 +31,9 @@ export default function AIAssistant() {
   const scrollRef = useRef(null);
 
   useEffect(() => {
-    getChatHistory(session).then((d) => setMessages(d.messages || [])).catch(() => {});
+    getChatHistory(session)
+      .then((d) => setMessages((prev) => (prev.length === 0 ? d.messages || [] : prev)))
+      .catch(() => {});
   }, [session]);
 
   useEffect(() => {
@@ -68,16 +70,24 @@ export default function AIAssistant() {
           if (payload.delta) {
             setMessages((m) => {
               const copy = [...m];
-              copy[copy.length - 1] = {
-                role: "assistant",
-                content: copy[copy.length - 1].content + payload.delta,
-              };
+              const last = copy[copy.length - 1];
+              if (!last || last.role !== "assistant") {
+                copy.push({ role: "assistant", content: payload.delta });
+              } else {
+                copy[copy.length - 1] = {
+                  role: "assistant",
+                  content: (last.content || "") + payload.delta,
+                };
+              }
               return copy;
             });
           } else if (payload.error) {
             setMessages((m) => {
               const copy = [...m];
-              copy[copy.length - 1] = { role: "assistant", content: "⚠️ " + payload.error };
+              const last = copy[copy.length - 1];
+              const text = "⚠️ " + payload.error;
+              if (!last || last.role !== "assistant") copy.push({ role: "assistant", content: text });
+              else copy[copy.length - 1] = { role: "assistant", content: text };
               return copy;
             });
           }
@@ -86,7 +96,10 @@ export default function AIAssistant() {
     } catch (e) {
       setMessages((m) => {
         const copy = [...m];
-        copy[copy.length - 1] = { role: "assistant", content: "⚠️ Connection error. Please try again." };
+        const last = copy[copy.length - 1];
+        const text = "⚠️ Connection error. Please try again.";
+        if (!last || last.role !== "assistant") copy.push({ role: "assistant", content: text });
+        else copy[copy.length - 1] = { role: "assistant", content: text };
         return copy;
       });
     } finally {
@@ -119,6 +132,7 @@ export default function AIAssistant() {
                   {SUGGESTIONS.map((s) => (
                     <button
                       key={s}
+                      data-testid="assistant-suggestion"
                       onClick={() => send(s)}
                       className="btn-ghost-gold text-left text-sm px-4 py-3 rounded-xl leading-snug"
                     >
