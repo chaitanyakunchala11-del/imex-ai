@@ -33,13 +33,14 @@ logger = logging.getLogger(__name__)
 # ----------------------------- Models -----------------------------
 class LandedCostRequest(BaseModel):
     product_name: str = "Imported Goods"
-    unit_value: float
+    category: str = "Other"
+    product_value: float          # unit FOB value
     quantity: int
-    freight: float = 0.0
-    insurance: float = 0.0
-    duty_rate: float = 5.0       # %
-    gst_rate: float = 10.0       # %
-    other_fees: float = 0.0
+    weight_kg: float = 0.0        # total shipment weight
+    origin: str = "Mumbai, India"
+    destination: str = "Sydney, AU"
+    selling_price: float = 0.0    # optional, per-unit, for margin
+    gst_rate: float = 10.0
     currency: str = "AUD"
 
 
@@ -128,31 +129,76 @@ async def list_opportunities():
     return {"opportunities": opps}
 
 
+CATEGORY_DUTY = {
+    "Textiles & Apparel": 10.0,
+    "Food & Grains": 0.0,
+    "Spices & Wellness": 4.0,
+    "Beauty & Personal": 5.0,
+    "Home & Lifestyle": 5.0,
+    "Electronics": 0.0,
+    "Jewelry & Luxury": 5.0,
+    "Leather Goods": 8.0,
+    "Furniture": 8.0,
+    "Other": 5.0,
+}
+
+# Indicative India -> AU sea-consol freight rate (AUD per kg) by destination port
+DEST_FREIGHT_RATE = {
+    "Sydney, AU": 4.0,
+    "Melbourne, AU": 4.0,
+    "Brisbane, AU": 4.3,
+    "Perth, AU": 4.8,
+    "Adelaide, AU": 4.5,
+}
+
+
 @api_router.post("/calculator/landed-cost")
 async def landed_cost(req: LandedCostRequest):
-    goods_value = req.unit_value * req.quantity
-    cif = goods_value + req.freight + req.insurance
-    duty = cif * req.duty_rate / 100
-    gst_base = cif + duty + req.other_fees
-    gst = gst_base * req.gst_rate / 100
-    total = cif + duty + req.other_fees + gst
+    duty_rate = CATEGORY_DUTY.get(req.category, 5.0)
+    freight_rate = DEST_FREIGHT_RATE.get(req.destination, 4.2)
+
+    goods_value = req.product_value * req.quantity
+    freight = max(req.weight_kg * freight_rate, 150.0 if req.weight_kg else 0.0)
+    insurance = round((goods_value + freight) * 0.005, 2)   # 0.5% of CFR
+    cif = goods_value + freight + insurance
+    duty = cif * duty_rate / 100
+    gst = (cif + duty) * req.gst_rate / 100
+    total = cif + duty + gst
     per_unit = total / req.quantity if req.quantity else 0
+
+    margin_pct = None
+    profit_per_unit = None
+    total_profit = None
+    if req.selling_price and req.selling_price > 0:
+        profit_per_unit = req.selling_price - per_unit
+        margin_pct = round(profit_per_unit / req.selling_price * 100, 1)
+        total_profit = round(profit_per_unit * req.quantity, 2)
+
     return {
         "currency": req.currency,
+        "product_name": req.product_name,
+        "category": req.category,
+        "origin": req.origin,
+        "destination": req.destination,
+        "duty_rate": duty_rate,
+        "freight_rate": freight_rate,
         "goods_value": round(goods_value, 2),
+        "freight_estimate": round(freight, 2),
+        "insurance": round(insurance, 2),
         "cif_value": round(cif, 2),
         "duty": round(duty, 2),
         "gst": round(gst, 2),
-        "other_fees": round(req.other_fees, 2),
         "total_landed_cost": round(total, 2),
         "per_unit_cost": round(per_unit, 2),
+        "margin_pct": margin_pct,
+        "profit_per_unit": round(profit_per_unit, 2) if profit_per_unit is not None else None,
+        "total_profit": total_profit,
         "breakdown": [
             {"label": "Goods Value (FOB)", "value": round(goods_value, 2)},
-            {"label": "Freight", "value": round(req.freight, 2)},
-            {"label": "Insurance", "value": round(req.insurance, 2)},
-            {"label": "Customs Duty", "value": round(duty, 2)},
-            {"label": "Other Fees", "value": round(req.other_fees, 2)},
-            {"label": "GST", "value": round(gst, 2)},
+            {"label": "Freight Estimate", "value": round(freight, 2)},
+            {"label": "Insurance (0.5%)", "value": round(insurance, 2)},
+            {"label": f"Customs Duty ({duty_rate}%)", "value": round(duty, 2)},
+            {"label": f"GST ({req.gst_rate}%)", "value": round(gst, 2)},
         ],
     }
 

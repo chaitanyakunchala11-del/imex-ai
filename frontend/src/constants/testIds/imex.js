@@ -22,13 +22,14 @@ export const DASHBOARD = {
 
 export const CALC = {
   page: "landed-cost-page",
+  productName: "calc-product-name",
+  category: "calc-category",
   unitValue: "calc-unit-value",
   quantity: "calc-quantity",
-  freight: "calc-freight",
-  insurance: "calc-insurance",
-  dutyRate: "calc-duty-rate",
-  gstRate: "calc-gst-rate",
-  otherFees: "calc-other-fees",
+  weight: "calc-weight",
+  origin: "calc-origin",
+  destination: "calc-destination",
+  sellingPrice: "calc-selling-price",
   submit: "calc-submit",
   result: "calc-result",
 };

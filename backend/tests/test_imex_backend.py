@@ -63,34 +63,85 @@ def test_opportunities(client):
             assert k in o
 
 
-# ----------------------- Landed Cost -----------------------
-def test_landed_cost(client):
+# ----------------------- Landed Cost (new schema: product/category/route/weight) -----------------------
+def test_landed_cost_defaults(client):
     payload = {
         "product_name": "TEST_Turmeric",
-        "unit_value": 10.0,
-        "quantity": 100,
-        "freight": 200.0,
-        "insurance": 50.0,
-        "duty_rate": 5.0,
+        "category": "Spices & Wellness",
+        "product_value": 12.0,
+        "quantity": 1000,
+        "weight_kg": 800.0,
+        "origin": "Mumbai, India",
+        "destination": "Sydney, AU",
+        "selling_price": 28.0,
         "gst_rate": 10.0,
-        "other_fees": 25.0,
         "currency": "AUD",
     }
     r = client.post(f"{BASE_URL}/api/calculator/landed-cost", json=payload)
     assert r.status_code == 200, r.text
     d = r.json()
-    # goods=1000, cif=1250, duty=62.5, gst base=1337.5, gst=133.75, total=1471.25
-    assert d["goods_value"] == 1000.0
-    assert d["cif_value"] == 1250.0
-    assert d["duty"] == 62.5
-    assert d["gst"] == 133.75
-    assert d["total_landed_cost"] == 1471.25
-    assert d["per_unit_cost"] == round(1471.25 / 100, 2)
-    assert isinstance(d["breakdown"], list) and len(d["breakdown"]) == 6
+    # goods = 12*1000=12000, freight=800*4=3200, insurance=0.005*(15200)=76.0
+    # cif = 12000 + 3200 + 76 = 15276, duty=4%*15276=611.04
+    # gst=10%*(15276+611.04)=1588.70 -> total = 15276+611.04+1588.704 = 17475.74
+    assert d["goods_value"] == 12000.0
+    assert d["freight_estimate"] == 3200.0
+    assert d["insurance"] == 76.0
+    assert d["cif_value"] == 15276.0
+    assert d["duty"] == 611.04
+    assert abs(d["gst"] - 1588.7) < 0.05
+    assert abs(d["total_landed_cost"] - 17475.74) < 0.1
+    assert d["per_unit_cost"] == round(d["total_landed_cost"] / 1000, 2)
+    # breakdown has 5 items per server.py (Goods, Freight, Insurance, Duty, GST)
+    assert isinstance(d["breakdown"], list) and len(d["breakdown"]) >= 5
+    # selling_price provided -> margin fields populated
+    assert d["margin_pct"] is not None
+    assert d["total_profit"] is not None
+    assert d["profit_per_unit"] is not None
+
+
+def test_landed_cost_category_changes_duty(client):
+    base = {
+        "product_name": "TEST_Cat",
+        "product_value": 12.0,
+        "quantity": 1000,
+        "weight_kg": 800.0,
+        "origin": "Mumbai, India",
+        "destination": "Sydney, AU",
+        "selling_price": 28.0,
+    }
+    r1 = client.post(f"{BASE_URL}/api/calculator/landed-cost",
+                     json={**base, "category": "Spices & Wellness"}).json()
+    r2 = client.post(f"{BASE_URL}/api/calculator/landed-cost",
+                     json={**base, "category": "Textiles & Apparel"}).json()
+    assert r1["duty_rate"] == 4.0
+    assert r2["duty_rate"] == 10.0
+    assert r2["duty"] > r1["duty"]
+    assert r2["total_landed_cost"] > r1["total_landed_cost"]
+
+
+def test_landed_cost_destination_changes_freight(client):
+    base = {
+        "product_name": "TEST_Dest",
+        "category": "Spices & Wellness",
+        "product_value": 12.0,
+        "quantity": 1000,
+        "weight_kg": 800.0,
+        "origin": "Mumbai, India",
+        "selling_price": 28.0,
+    }
+    r_syd = client.post(f"{BASE_URL}/api/calculator/landed-cost",
+                        json={**base, "destination": "Sydney, AU"}).json()
+    r_per = client.post(f"{BASE_URL}/api/calculator/landed-cost",
+                        json={**base, "destination": "Perth, AU"}).json()
+    assert r_syd["freight_rate"] == 4.0
+    assert r_per["freight_rate"] == 4.8
+    assert r_per["freight_estimate"] > r_syd["freight_estimate"]
+    assert r_per["total_landed_cost"] > r_syd["total_landed_cost"]
 
 
 def test_landed_cost_validation(client):
-    r = client.post(f"{BASE_URL}/api/calculator/landed-cost", json={"unit_value": "abc"})
+    # missing required product_value/quantity -> 422
+    r = client.post(f"{BASE_URL}/api/calculator/landed-cost", json={"product_value": "abc"})
     assert r.status_code in (400, 422)
 
 

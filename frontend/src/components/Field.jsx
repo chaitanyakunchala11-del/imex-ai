@@ -29,3 +29,29 @@ export function Field({ label, suffix, prefix, className, ...props }) {
 }
 
 export default Field;
+
+export function SelectField({ label, options, className, ...props }) {
+  return (
+    <label className="block">
+      <span className="block text-xs font-semibold uppercase tracking-[0.14em] text-stone-400 mb-2">
+        {label}
+      </span>
+      <div className="relative">
+        <select
+          className={cn(
+            "w-full glass rounded-xl px-4 py-3 text-stone-100 text-[0.95rem] appearance-none cursor-pointer",
+            "focus:outline-none focus:ring-2 focus:ring-amber-400/40 focus:border-amber-400/40 transition",
+            "[&>option]:bg-[#11151c] [&>option]:text-stone-100",
+            className
+          )}
+          {...props}
+        >
+          {options.map((o) => (
+            <option key={o} value={o}>{o}</option>
+          ))}
+        </select>
+        <svg className="absolute right-3.5 top-1/2 -translate-y-1/2 text-amber-300/70 pointer-events-none" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m6 9 6 6 6-6"/></svg>
+      </div>
+    </label>
+  );
+}
