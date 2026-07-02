@@ -73,7 +73,7 @@ export default function Landing() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-            className="glass-card glass-gold max-w-2xl p-9 md:p-12"
+            className="glass-card glass-gold max-w-2xl p-6 sm:p-9 md:p-12"
           >
             <span className="inline-flex items-center gap-2 text-[0.7rem] uppercase tracking-[0.32em] text-amber-300/90 font-semibold mb-6">
               <Globe2 size={14} /> Australia · India · Global Trade

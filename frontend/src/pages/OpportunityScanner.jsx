@@ -43,7 +43,7 @@ export default function OpportunityScanner() {
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search products, categories…"
-              className="w-full glass rounded-full pl-10 pr-4 py-2.5 text-sm text-stone-100 placeholder:text-stone-600 focus:outline-none focus:ring-2 focus:ring-amber-400/40"
+              className="w-full glass rounded-full pl-10 pr-4 py-3 min-h-[44px] text-sm text-stone-100 placeholder:text-stone-600 focus:outline-none focus:ring-2 focus:ring-amber-400/40"
             />
           </div>
         }
@@ -55,7 +55,7 @@ export default function OpportunityScanner() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search products…"
-          className="w-full glass rounded-full pl-10 pr-4 py-2.5 text-sm text-stone-100 placeholder:text-stone-600 focus:outline-none focus:ring-2 focus:ring-amber-400/40"
+          className="w-full glass rounded-full pl-10 pr-4 py-3 min-h-[44px] text-sm text-stone-100 placeholder:text-stone-600 focus:outline-none focus:ring-2 focus:ring-amber-400/40"
         />
       </div>
 

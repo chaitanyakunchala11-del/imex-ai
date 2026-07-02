@@ -12,7 +12,7 @@ export function Field({ label, suffix, prefix, className, ...props }) {
         )}
         <input
           className={cn(
-            "w-full glass rounded-xl px-4 py-3 text-stone-100 text-[0.95rem] placeholder:text-stone-600",
+            "w-full glass rounded-xl px-4 py-3 min-h-[48px] text-stone-100 text-[0.95rem] placeholder:text-stone-600",
             "focus:outline-none focus:ring-2 focus:ring-amber-400/40 focus:border-amber-400/40 transition",
             prefix && "pl-8",
             suffix && "pr-10",
@@ -39,7 +39,7 @@ export function SelectField({ label, options, className, ...props }) {
       <div className="relative">
         <select
           className={cn(
-            "w-full glass rounded-xl px-4 py-3 text-stone-100 text-[0.95rem] appearance-none cursor-pointer",
+            "w-full glass rounded-xl px-4 py-3 min-h-[48px] text-stone-100 text-[0.95rem] appearance-none cursor-pointer",
             "focus:outline-none focus:ring-2 focus:ring-amber-400/40 focus:border-amber-400/40 transition",
             "[&>option]:bg-[#11151c] [&>option]:text-stone-100",
             className

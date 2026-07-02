@@ -1,6 +1,7 @@
 import "@/App.css";
 import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 import Sidebar from "@/components/layout/Sidebar";
+import MobileNav from "@/components/layout/MobileNav";
 import Landing from "@/pages/Landing";
 import Dashboard from "@/pages/Dashboard";
 import LandedCost from "@/pages/LandedCost";
@@ -11,9 +12,10 @@ import AIAssistant from "@/pages/AIAssistant";
 
 function AppShell() {
   return (
-    <div className="imex-bg min-h-screen flex">
+    <div className="imex-bg min-h-screen flex overflow-x-hidden">
       <Sidebar />
-      <main className="relative z-10 flex-1 min-w-0 px-5 md:px-10 py-8 md:py-10">
+      <MobileNav />
+      <main className="relative z-10 flex-1 min-w-0 w-full px-4 sm:px-6 md:px-10 pt-24 lg:pt-10 pb-10 md:pb-12">
         <div className="max-w-[1200px] mx-auto">
           <Outlet />
         </div>
