@@ -33,6 +33,15 @@ opportunities, and get AI advisory — all in a luxury glassmorphic gold design 
 - Fixed AIAssistant SSE race condition (history-seed guard + defensive reducers)
 - `yarn build` compiles clean (250.6 kB gz js, 11.31 kB gz css)
 
+## Status — Update (2026-07-02)
+- Landed Cost Calculator rebuilt: product/category/weight/origin/destination inputs,
+  auto freight estimate + category duty + GST + margin. (iteration_3, 100%)
+- Full mobile responsiveness: hamburger slide-out MobileNav (<1024px), shared navLinks,
+  overflow-x-hidden shell, single-column forms, >=44px tap targets. Verified 36/36
+  breakpoint x route no-overflow at 320/375/390/414/768/1024/1440 (iteration_4, 100%)
+- Deployed to production (custom domain www.imexai.com.au). Diagnosed apex->www 308
+  redirect breaking CORS preflight on apex; fix is domain-config (use www / support).
+
 ## Backlog / Next Action Items
 - P1: Auth (JWT or Google) to gate the workspace + per-user saved scenarios
 - P1: Persist calculator results & let users save/export reports (PDF/CSV)

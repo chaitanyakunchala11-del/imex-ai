@@ -33,7 +33,7 @@ export default function MobileNav() {
           onClick={() => navigate("/")}
           className="flex items-center gap-2.5 text-left"
         >
-          <span className="grid place-items-center h-10 w-10 rounded-xl btn-gold shrink-0">
+          <span className="grid place-items-center h-11 w-11 rounded-xl btn-gold shrink-0">
             <Ship size={18} />
           </span>
           <span className="font-display text-lg gold-text leading-none">IMEX AI</span>
