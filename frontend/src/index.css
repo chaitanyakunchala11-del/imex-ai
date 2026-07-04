@@ -32,6 +32,9 @@
 }
 
 @layer base {
+    /* Hide any injected Emergent branding badge */
+    #emergent-badge { display: none !important; }
+
     * {
         @apply border-border;
     }
