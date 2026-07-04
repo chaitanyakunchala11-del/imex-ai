@@ -66,6 +66,29 @@ class ChatRequest(BaseModel):
     message: str
 
 
+class ProjectCreate(BaseModel):
+    client_id: str
+    name: str
+    description: str = ""
+
+
+class ProjectUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+
+
+class CalculationCreate(BaseModel):
+    client_id: str
+    type: str                       # landed_cost | import_vs_local | profit_mode
+    title: str
+    inputs: dict = {}
+    results: dict = {}
+    rows: List[dict] = []           # [{label, value}] for exports
+    headline_label: str = ""
+    headline_value: str = ""
+    project_id: Optional[str] = None
+
+
 # ----------------------------- Seed data -----------------------------
 SEED_OPPORTUNITIES = [
     {"product": "Organic Turmeric Powder", "category": "Spices & Wellness", "origin": "Erode, India", "destination": "Sydney, AU", "hs_code": "091030", "margin_pct": 64.0, "demand_score": 92, "monthly_volume": 18500, "trend": "up", "landed_index": 1.18, "summary": "High-margin wellness staple with surging demand in AU health retail."},
@@ -250,6 +273,95 @@ async def profit_mode(req: ProfitModeRequest):
         "roi_pct": round(roi, 1),
         "per_unit_profit": round(per_unit_profit, 2),
     }
+
+
+# ----------------------------- Projects & Saved Calculations -----------------------------
+@api_router.post("/projects")
+async def create_project(req: ProjectCreate):
+    doc = {
+        "id": str(uuid.uuid4()),
+        "client_id": req.client_id,
+        "name": req.name,
+        "description": req.description,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.projects.insert_one(doc)
+    doc.pop("_id", None)
+    return doc
+
+
+@api_router.get("/projects")
+async def list_projects(client_id: str):
+    projects = await db.projects.find({"client_id": client_id}, {"_id": 0}).sort("created_at", -1).to_list(500)
+    for p in projects:
+        p["calculation_count"] = await db.calculations.count_documents({"project_id": p["id"]})
+    return {"projects": projects}
+
+
+@api_router.patch("/projects/{project_id}")
+async def update_project(project_id: str, req: ProjectUpdate):
+    updates = {k: v for k, v in req.model_dump().items() if v is not None}
+    if updates:
+        updates["updated_at"] = datetime.now(timezone.utc).isoformat()
+        await db.projects.update_one({"id": project_id}, {"$set": updates})
+    doc = await db.projects.find_one({"id": project_id}, {"_id": 0})
+    if not doc:
+        raise HTTPException(status_code=404, detail="Project not found")
+    return doc
+
+
+@api_router.delete("/projects/{project_id}")
+async def delete_project(project_id: str):
+    await db.projects.delete_one({"id": project_id})
+    # detach calculations from the deleted project (keep the calcs)
+    await db.calculations.update_many({"project_id": project_id}, {"$set": {"project_id": None}})
+    return {"deleted": project_id}
+
+
+@api_router.post("/calculations")
+async def create_calculation(req: CalculationCreate):
+    doc = {
+        "id": str(uuid.uuid4()),
+        "client_id": req.client_id,
+        "type": req.type,
+        "title": req.title,
+        "inputs": req.inputs,
+        "results": req.results,
+        "rows": req.rows,
+        "headline_label": req.headline_label,
+        "headline_value": req.headline_value,
+        "project_id": req.project_id,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.calculations.insert_one(doc)
+    doc.pop("_id", None)
+    return doc
+
+
+@api_router.get("/calculations")
+async def list_calculations(client_id: str, project_id: Optional[str] = None, type: Optional[str] = None):
+    query = {"client_id": client_id}
+    if project_id:
+        query["project_id"] = project_id
+    if type:
+        query["type"] = type
+    calcs = await db.calculations.find(query, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    return {"calculations": calcs}
+
+
+@api_router.get("/calculations/{calc_id}")
+async def get_calculation(calc_id: str):
+    doc = await db.calculations.find_one({"id": calc_id}, {"_id": 0})
+    if not doc:
+        raise HTTPException(status_code=404, detail="Calculation not found")
+    return doc
+
+
+@api_router.delete("/calculations/{calc_id}")
+async def delete_calculation(calc_id: str):
+    await db.calculations.delete_one({"id": calc_id})
+    return {"deleted": calc_id}
 
 
 # ----------------------------- AI Assistant -----------------------------
